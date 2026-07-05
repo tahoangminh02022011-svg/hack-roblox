@@ -1,0 +1,644 @@
+-- Advanced Tycoon Hack Menu
+-- Features: Money x10000, Base Teleport & Steal, Unlimited Skills, Rainbow ESP
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local camera = Workspace.CurrentCamera
+
+-- Create Main GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AdvancedTycoonMenu"
+ScreenGui.Parent = CoreGui
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 350, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+-- Corner Radius
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+-- Gradient Background
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 45)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 30))
+})
+UIGradient.Parent = MainFrame
+
+-- Title Bar
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Size = UDim2.new(1, 0, 0, 50)
+TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 12)
+TitleCorner.Parent = TitleBar
+
+local TitleText = Instance.new("TextLabel")
+TitleText.Size = UDim2.new(1, -60, 1, 0)
+TitleText.Position = UDim2.new(0, 15, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "TYCOON HACK PRO"
+TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleText.TextSize = 22
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Parent = TitleBar
+
+-- Rainbow Effect for Title
+local rainbowTween = TweenService:Create(TitleText, TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {
+    TextColor3 = Color3.fromRGB(255, 0, 0)
+})
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 40, 0, 40)
+CloseBtn.Position = UDim2.new(1, -45, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 20
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = TitleBar
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.Parent = CloseBtn
+
+-- Content Frame
+local ContentFrame = Instance.new("ScrollingFrame")
+ContentFrame.Name = "Content"
+ContentFrame.Size = UDim2.new(1, -20, 1, -70)
+ContentFrame.Position = UDim2.new(0, 10, 0, 60)
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.ScrollBarThickness = 4
+ContentFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 150)
+ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 450)
+ContentFrame.Parent = MainFrame
+
+-- Layout
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 15)
+UIListLayout.Parent = ContentFrame
+
+-- Variables
+local features = {
+    moneyMultiplier = false,
+    teleportSteal = false,
+    unlimitedSkills = false,
+    rainbowESP = false
+}
+
+-- Rainbow Color Function
+local function getRainbowColor(t)
+    local r = math.sin(t * 2) * 0.5 + 0.5
+    local g = math.sin(t * 2 + 2) * 0.5 + 0.5
+    local b = math.sin(t * 2 + 4) * 0.5 + 0.5
+    return Color3.new(r, g, b)
+end
+
+-- Create Toggle Button Function
+local function createToggle(name, description, callback)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 80)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.Parent = ContentFrame
+    
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 10)
+    ToggleCorner.Parent = ToggleFrame
+    
+    -- Glow Effect
+    local Glow = Instance.new("ImageLabel")
+    Glow.Name = "Glow"
+    Glow.Size = UDim2.new(1, 30, 1, 30)
+    Glow.Position = UDim2.new(0, -15, 0, -15)
+    Glow.BackgroundTransparency = 1
+    Glow.Image = "rbxassetid://4996891970"
+    Glow.ImageColor3 = Color3.fromRGB(100, 100, 255)
+    Glow.ImageTransparency = 0.9
+    Glow.ScaleType = Enum.ScaleType.Slice
+    Glow.SliceCenter = Rect.new(20, 20, 280, 280)
+    Glow.Parent = ToggleFrame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, -100, 0, 30)
+    Title.Position = UDim2.new(0, 15, 0, 10)
+    Title.BackgroundTransparency = 1
+    Title.Text = name
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 18
+    Title.Font = Enum.Font.GothamBold
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = ToggleFrame
+    
+    local Desc = Instance.new("TextLabel")
+    Desc.Size = UDim2.new(1, -100, 0, 35)
+    Desc.Position = UDim2.new(0, 15, 0, 40)
+    Desc.BackgroundTransparency = 1
+    Desc.Text = description
+    Desc.TextColor3 = Color3.fromRGB(180, 180, 200)
+    Desc.TextSize = 12
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.TextWrapped = true
+    Desc.Parent = ToggleFrame
+    
+    -- Toggle Switch
+    local SwitchFrame = Instance.new("Frame")
+    SwitchFrame.Size = UDim2.new(0, 60, 0, 30)
+    SwitchFrame.Position = UDim2.new(1, -75, 0.5, -15)
+    SwitchFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    SwitchFrame.BorderSizePixel = 0
+    SwitchFrame.Parent = ToggleFrame
+    
+    local SwitchCorner = Instance.new("UICorner")
+    SwitchCorner.CornerRadius = UDim.new(1, 0)
+    SwitchCorner.Parent = SwitchFrame
+    
+    local SwitchCircle = Instance.new("Frame")
+    SwitchCircle.Size = UDim2.new(0, 24, 0, 24)
+    SwitchCircle.Position = UDim2.new(0, 3, 0, 3)
+    SwitchCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SwitchCircle.BorderSizePixel = 0
+    SwitchCircle.Parent = SwitchFrame
+    
+    local CircleCorner = Instance.new("UICorner")
+    CircleCorner.CornerRadius = UDim.new(1, 0)
+    CircleCorner.Parent = SwitchCircle
+    
+    local enabled = false
+    
+    local function toggle()
+        enabled = not enabled
+        local targetPos = enabled and UDim2.new(0, 33, 0, 3) or UDim2.new(0, 3, 0, 3)
+        local targetColor = enabled and Color3.fromRGB(0, 255, 150) or Color3.fromRGB(60, 60, 80)
+        
+        TweenService:Create(SwitchCircle, TweenInfo.new(0.3), {Position = targetPos}):Play()
+        TweenService:Create(SwitchFrame, TweenInfo.new(0.3), {BackgroundColor3 = targetColor}):Play()
+        
+        if enabled then
+            Glow.ImageTransparency = 0.6
+        else
+            Glow.ImageTransparency = 0.9
+        end
+        
+        callback(enabled)
+    end
+    
+    local ClickArea = Instance.new("TextButton")
+    ClickArea.Size = UDim2.new(1, 0, 1, 0)
+    ClickArea.BackgroundTransparency = 1
+    ClickArea.Text = ""
+    ClickArea.Parent = ToggleFrame
+    ClickArea.MouseButton1Click:Connect(toggle)
+    
+    return ToggleFrame
+end
+
+-- ESP Storage
+local espObjects = {}
+local espConnection
+
+-- FEATURE 1: Money x10000
+createToggle("Money x10000", "Nhân số tiền hiện tại lên 10000 lần", function(enabled)
+    features.moneyMultiplier = enabled
+    
+    if enabled then
+        spawn(function()
+            while features.moneyMultiplier do
+                wait(0.1)
+                pcall(function()
+                    -- Tìm và thao tác với số tiền
+                    local leaderstats = player:FindFirstChild("leaderstats")
+                    if leaderstats then
+                        for _, stat in pairs(leaderstats:GetChildren()) do
+                            if stat:IsA("IntValue") or stat:IsA("NumberValue") then
+                                if stat.Name:lower():match("money") or stat.Name:lower():match("cash") or stat.Name:lower():match("coin") then
+                                    -- Lưu giá trị gốc và nhân lên
+                                    local originalValue = stat.Value
+                                    stat.Value = originalValue * 10000
+                                    
+                                    -- Hook metamethod để mọi thay đổi đều được nhân
+                                    local mt = getrawmetatable and getrawmetatable(game) or nil
+                                    if mt and setreadonly then
+                                        setreadonly(mt, false)
+                                        local oldIndex = mt.__index
+                                        mt.__index = function(t, k)
+                                            if t == stat and k == "Value" then
+                                                return oldIndex(t, k) * 10000
+                                            end
+                                            return oldIndex(t, k)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    
+                    -- Thử fire remote để thêm tiền
+                    for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                        if remote:IsA("RemoteEvent") then
+                            if remote.Name:lower():match("add") or remote.Name:lower():match("give") or remote.Name:lower():match("earn") then
+                                remote:FireServer(999999999)
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
+-- FEATURE 2: Teleport & Steal
+createToggle("Teleport & Steal", "Dịch chuyển đến căn cứ người khác và lấy đồ", function(enabled)
+    features.teleportSteal = enabled
+    
+    if enabled then
+        spawn(function()
+            while features.teleportSteal do
+                wait(2)
+                pcall(function()
+                    local character = player.Character
+                    if not character then continue end
+                    
+                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    if not hrp then continue end
+                    
+                    -- Tìm căn cứ của người chơi khác
+                    for _, otherPlayer in pairs(Players:GetPlayers()) do
+                        if otherPlayer ~= player then
+                            -- Tìm tycoon/base của họ
+                            for _, obj in pairs(Workspace:GetDescendants()) do
+                                if obj.Name:lower():match("tycoon") or obj.Name:lower():match("base") or obj.Name:lower():match("plot") then
+                                    if obj:FindFirstChild("Owner") and obj.Owner.Value == otherPlayer then
+                                        -- Teleport đến căn cứ
+                                        local basePos = obj:GetPivot().Position
+                                        hrp.CFrame = CFrame.new(basePos + Vector3.new(0, 10, 0))
+                                        
+                                        -- Tìm và lấy vật phẩm/kỹ năng
+                                        for _, item in pairs(obj:GetDescendants()) do
+                                            if item:IsA("TouchInterest") then
+                                                firetouchinterest(hrp, item.Parent, 0)
+                                                firetouchinterest(hrp, item.Parent, 1)
+                                            end
+                                            if item:IsA("ClickDetector") then
+                                                fireclickdetector(item)
+                                            end
+                                            if item:IsA("ProximityPrompt") then
+                                                fireproximityprompt(item)
+                                            end
+                                        end
+                                        
+                                        -- Tìm tool/gear
+                                        for _, tool in pairs(obj:GetDescendants()) do
+                                            if tool:IsA("Tool") then
+                                                -- Clone tool về inventory
+                                                local clonedTool = tool:Clone()
+                                                clonedTool.Parent = player.Backpack
+                                            end
+                                        end
+                                        
+                                        wait(3) -- Chờ 3 giây trước khi chuyển sang người khác
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
+-- FEATURE 3: Unlimited Skills
+createToggle("Unlimited Skills", "Spam chiêu thức không giới hạn", function(enabled)
+    features.unlimitedSkills = enabled
+    
+    if enabled then
+        spawn(function()
+            while features.unlimitedSkills do
+                wait(0.05) -- Spam nhanh
+                pcall(function()
+                    -- Tìm và kích hoạt mọi tool/gear trong backpack
+                    for _, tool in pairs(player.Backpack:GetChildren()) do
+                        if tool:IsA("Tool") then
+                            tool.Parent = player.Character
+                            if tool:FindFirstChild("RemoteEvent") then
+                                tool.RemoteEvent:FireServer()
+                            end
+                            if tool:FindFirstChild("Activate") then
+                                tool:Activate()
+                            end
+                            -- Tìm LocalScript và kích hoạt
+                            for _, script in pairs(tool:GetDescendants()) do
+                                if script:IsA("LocalScript") then
+                                    -- Fire các remote liên quan
+                                end
+                            end
+                        end
+                    end
+                    
+                    -- Kích hoạt tool đang cầm
+                    local currentTool = player.Character:FindFirstChildOfClass("Tool")
+                    if currentTool then
+                        currentTool:Activate()
+                        -- Tìm remote trong tool
+                        for _, remote in pairs(currentTool:GetDescendants()) do
+                            if remote:IsA("RemoteEvent") then
+                                remote:FireServer()
+                            elseif remote:IsA("RemoteFunction") then
+                                remote:InvokeServer()
+                            end
+                        end
+                    end
+                    
+                    -- Tìm các remote skill phổ biến
+                    local skillNames = {"Skill", "Ability", "Attack", "Cast", "Use", "Activate"}
+                    for _, name in pairs(skillNames) do
+                        local remote = ReplicatedStorage:FindFirstChild(name, true)
+                        if remote and remote:IsA("RemoteEvent") then
+                            remote:FireServer()
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+end)
+
+-- FEATURE 4: Rainbow ESP
+createToggle("Rainbow ESP", "Hiển thị người chơi với khung cầu vồng", function(enabled)
+    features.rainbowESP = enabled
+    
+    if enabled then
+        -- Tạo ESP cho mỗi người chơi
+        local function createESP(targetPlayer)
+            if targetPlayer == player then return end
+            
+            -- Xóa ESP cũ nếu có
+            if espObjects[targetPlayer] then
+                for _, obj in pairs(espObjects[targetPlayer]) do
+                    obj:Remove()
+                end
+            end
+            
+            espObjects[targetPlayer] = {}
+            
+            -- Tạo khung box ESP sử dụng Drawing API
+            local box = Drawing.new("Square")
+            box.Visible = false
+            box.Thickness = 2
+            box.Filled = false
+            box.Transparency = 1
+            espObjects[targetPlayer].box = box
+            
+            -- Tạo vòng tròn ở tâm (0-5cm tương đương 10-50 pixel tùy khoảng cách)
+            local centerCircle = Drawing.new("Circle")
+            centerCircle.Visible = false
+            centerCircle.Thickness = 2
+            centerCircle.Filled = true
+            centerCircle.NumSides = 32
+            centerCircle.Radius = 15 -- Kích thước có thể điều chỉnh
+            espObjects[targetPlayer].circle = centerCircle
+            
+            -- Tên người chơi
+            local nameTag = Drawing.new("Text")
+            nameTag.Visible = false
+            nameTag.Size = 16
+            nameTag.Center = true
+            nameTag.Outline = true
+            nameTag.Text = targetPlayer.Name
+            espObjects[targetPlayer].name = nameTag
+            
+            -- Khoảng cách
+            local distanceTag = Drawing.new("Text")
+            distanceTag.Visible = false
+            distanceTag.Size = 14
+            distanceTag.Center = true
+            distanceTag.Outline = true
+            espObjects[targetPlayer].distance = distanceTag
+        end
+        
+        -- Cập nhật ESP mỗi frame
+        espConnection = RunService.RenderStepped:Connect(function()
+            local rainbowColor = getRainbowColor(tick())
+            
+            for _, targetPlayer in pairs(Players:GetPlayers()) do
+                if targetPlayer ~= player then
+                    if not espObjects[targetPlayer] then
+                        createESP(targetPlayer)
+                    end
+                    
+                    local character = targetPlayer.Character
+                    if character then
+                        local hrp = character:FindFirstChild("HumanoidRootPart")
+                        local head = character:FindFirstChild("Head")
+                        local humanoid = character:FindFirstChild("Humanoid")
+                        
+                        if hrp and head and humanoid then
+                            local pos, onScreen = camera:WorldToViewportPoint(hrp.Position)
+                            local headPos = camera:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
+                            local legPos = camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                            
+                            if onScreen then
+                                local box = espObjects[targetPlayer].box
+                                local circle = espObjects[targetPlayer].circle
+                                local name = espObjects[targetPlayer].name
+                                local dist = espObjects[targetPlayer].distance
+                                
+                                -- Tính toán kích thước box
+                                local boxHeight = math.abs(headPos.Y - legPos.Y)
+                                local boxWidth = boxHeight * 0.6
+                                
+                                -- Cập nhật box
+                                box.Size = Vector2.new(boxWidth, boxHeight)
+                                box.Position = Vector2.new(pos.X - boxWidth/2, pos.Y - boxHeight/2)
+                                box.Color = rainbowColor
+                                box.Visible = true
+                                
+                                -- Cập nhật vòng tròn tâm (cầu vồng)
+                                circle.Position = Vector2.new(pos.X, pos.Y)
+                                circle.Color = rainbowColor
+                                circle.Radius = math.clamp(boxWidth * 0.15, 5, 25) -- 0-5cm tương đối
+                                circle.Visible = true
+                                
+                                -- Cập nhật tên
+                                name.Position = Vector2.new(pos.X, headPos.Y - 25)
+                                name.Color = rainbowColor
+                                name.Visible = true
+                                
+                                -- Cập nhật khoảng cách
+                                local distance = (hrp.Position - camera.CFrame.Position).Magnitude
+                                distanceTag.Position = Vector2.new(pos.X, legPos.Y + 5)
+                                distanceTag.Text = math.floor(distance) .. "m"
+                                distanceTag.Color = rainbowColor
+                                distanceTag.Visible = true
+                            else
+                                -- Ẩn nếu không trong màn hình
+                                espObjects[targetPlayer].box.Visible = false
+                                espObjects[targetPlayer].circle.Visible = false
+                                espObjects[targetPlayer].name.Visible = false
+                                espObjects[targetPlayer].distance.Visible = false
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+        
+        -- Tạo ESP cho người chơi hiện có
+        for _, p in pairs(Players:GetPlayers()) do
+            createESP(p)
+        end
+        
+        -- Tạo ESP cho người chơi mới
+        Players.PlayerAdded:Connect(createESP)
+        
+        -- Xóa ESP khi người chơi rời đi
+        Players.PlayerRemoving:Connect(function(p)
+            if espObjects[p] then
+                for _, obj in pairs(espObjects[p]) do
+                    obj:Remove()
+                end
+                espObjects[p] = nil
+            end
+        end)
+        
+    else
+        -- Tắt ESP
+        if espConnection then
+            espConnection:Disconnect()
+            espConnection = nil
+        end
+        
+        for _, objects in pairs(espObjects) do
+            for _, obj in pairs(objects) do
+                obj:Remove()
+            end
+        end
+        espObjects = {}
+    end
+end)
+
+-- Minimize Button
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.new(0, 40, 0, 40)
+MinimizeBtn.Position = UDim2.new(1, -90, 0, 5)
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeBtn.TextSize = 24
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Parent = TitleBar
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 8)
+MinCorner.Parent = MinimizeBtn
+
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    local targetSize = minimized and UDim2.new(0, 350, 0, 50) or UDim2.new(0, 350, 0, 500)
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = targetSize}):Play()
+    MinimizeBtn.Text = minimized and "+" or "-"
+end)
+
+-- Close Function
+CloseBtn.MouseButton1Click:Connect(function()
+    -- Tắt tất cả features
+    features.moneyMultiplier = false
+    features.teleportSteal = false
+    features.unlimitedSkills = false
+    features.rainbowESP = false
+    
+    if espConnection then
+        espConnection:Disconnect()
+    end
+    
+    for _, objects in pairs(espObjects) do
+        for _, obj in pairs(objects) do
+            obj:Remove()
+        end
+    end
+    
+    ScreenGui:Destroy()
+end)
+
+-- Make Draggable
+local dragging = false
+local dragInput, dragStart, startPos
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
+end)
+
+TitleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+-- Anti-AFK
+local vu = game:GetService("VirtualUser")
+player.Idled:Connect(function()
+    vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    wait(1)
+    vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+end)
+
+-- Rainbow Title Animation
+spawn(function()
+    while wait() do
+        if TitleText and TitleText.Parent then
+            local hue = tick() % 3 / 3
+            TitleText.TextColor3 = Color3.fromHSV(hue, 1, 1)
+        else
+            break
+        end
+    end
+end)
+
+print("=== TYCOON HACK PRO LOADED ===")
+print("Features:")
+print("1. Money x10000 - Multiplies your money")
+print("2. Teleport & Steal - Auto teleport to bases")
+print("3. Unlimited Skills - Spam abilities")
+print("4. Rainbow ESP - Player ESP with rainbow effects")
