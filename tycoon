@@ -1,384 +1,272 @@
--- SUPER ENERGY TYCOON MEGA HACK WITH INFINITE MONEY + MENU
--- Copy and paste entire script into executor. GUI appears automatically.
-
 local player = game:GetService("Players").LocalPlayer
-local mouse = player:GetMouse()
 local runService = game:GetService("RunService")
 local userInput = game:GetService("UserInputService")
-local guiService = game:GetService("StarterGui")
-local virtualUser = game:GetService("VirtualUser")
 
--- ========== CREATE MENU ==========
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "TycoonHackMenu"
-screenGui.Parent = player.PlayerGui
-
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 400, 0, 580)
-mainFrame.Position = UDim2.new(0.5, -200, 0.5, -290)
-mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-mainFrame.BackgroundTransparency = 0.1
-mainFrame.BorderSizePixel = 0
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-title.Text = "TYCOON MEGA HACK v3.0 - INFINITE MONEY"
-title.TextColor3 = Color3.fromRGB(255, 215, 0)
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.Parent = mainFrame
-
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 35, 0, 35)
-closeBtn.Position = UDim2.new(1, -40, 0, 2)
-closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
-closeBtn.TextScaled = true
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.Parent = mainFrame
-closeBtn.MouseButton1Click:Connect(function() screenGui.Enabled = false end)
-
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 45, 0, 35)
-toggleBtn.Position = UDim2.new(1, -90, 0, 2)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
-toggleBtn.Text = "≡"
-toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
-toggleBtn.TextScaled = true
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.Parent = mainFrame
-local menuVisible = true
-toggleBtn.MouseButton1Click:Connect(function()
-    menuVisible = not menuVisible
-    mainFrame.Visible = menuVisible
-end)
-
-local function createLabel(text, yOffset)
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 25)
-    lbl.Position = UDim2.new(0, 10, 0, yOffset)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(200, 220, 255)
-    lbl.TextSize = 16
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Font = Enum.Font.Gotham
-    lbl.Parent = mainFrame
-    return lbl
-end
-
-local function createToggle(text, yOffset, defaultState, callback)
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, -20, 0, 30)
-    container.Position = UDim2.new(0, 10, 0, yOffset)
-    container.BackgroundTransparency = 1
-    container.Parent = mainFrame
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0, 220, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(220, 220, 255)
-    lbl.TextSize = 14
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Font = Enum.Font.Gotham
-    lbl.Parent = container
-
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 65, 1, 0)
-    btn.Position = UDim2.new(1, -70, 0, 0)
-    btn.BackgroundColor3 = defaultState and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 50, 50)
-    btn.Text = defaultState and "ON" or "OFF"
-    btn.TextColor3 = Color3.fromRGB(255,255,255)
-    btn.TextSize = 14
-    btn.Font = Enum.Font.GothamBold
-    btn.Parent = container
-
-    local state = defaultState
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(200, 50, 50)
-        btn.Text = state and "ON" or "OFF"
-        callback(state)
-    end)
-    return container
-end
-
-local function createSlider(text, yOffset, minVal, maxVal, defaultVal, callback)
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, -20, 0, 30)
-    container.Position = UDim2.new(0, 10, 0, yOffset)
-    container.BackgroundTransparency = 1
-    container.Parent = mainFrame
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0, 160, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text .. ": " .. tostring(defaultVal)
-    lbl.TextColor3 = Color3.fromRGB(220, 220, 255)
-    lbl.TextSize = 13
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Font = Enum.Font.Gotham
-    lbl.Parent = container
-
-    local slider = Instance.new("Slider")
-    slider.Size = UDim2.new(0, 120, 1, 0)
-    slider.Position = UDim2.new(0, 170, 0, 0)
-    slider.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    slider.BackgroundTransparency = 0.5
-    slider.MinValue = minVal
-    slider.MaxValue = maxVal
-    slider.Value = defaultVal
-    slider.Parent = container
-
-    slider.Changed:Connect(function()
-        lbl.Text = text .. ": " .. tostring(math.floor(slider.Value))
-        callback(slider.Value)
-    end)
-    return container
-end
-
--- ========== SETTINGS ==========
-local settings = {
-    autoCollect = true,
-    autoClick = true,
-    speedBoost = true,
-    godMode = true,
-    infiniteEnergy = true,
-    infiniteMoney = true,
-    autoFarm = false,
-    teleportOnSpawn = false,
-    walkSpeed = 55,
-    jumpPower = 90,
-    energyGain = 500,
-    moneyGain = 999999,
-    farmRange = 35
-}
-
--- ========== BUILD UI ==========
-local yPos = 45
-createLabel("-- CORE FEATURES --", yPos); yPos = yPos + 28
-createToggle("Auto Collect Drops", yPos, settings.autoCollect, function(v) settings.autoCollect = v end); yPos = yPos + 35
-createToggle("Auto Click Buttons", yPos, settings.autoClick, function(v) settings.autoClick = v end); yPos = yPos + 35
-createToggle("Speed Boost", yPos, settings.speedBoost, function(v) settings.speedBoost = v end); yPos = yPos + 35
-createToggle("God Mode (Infinite HP)", yPos, settings.godMode, function(v) settings.godMode = v end); yPos = yPos + 35
-createToggle("Infinite Energy", yPos, settings.infiniteEnergy, function(v) settings.infiniteEnergy = v end); yPos = yPos + 35
-createToggle("INFINITE MONEY", yPos, settings.infiniteMoney, function(v) settings.infiniteMoney = v end); yPos = yPos + 35
-createToggle("Auto Farm (collect all)", yPos, settings.autoFarm, function(v) settings.autoFarm = v end); yPos = yPos + 35
-createToggle("Teleport to Spawn on Respawn", yPos, settings.teleportOnSpawn, function(v) settings.teleportOnSpawn = v end); yPos = yPos + 35
-createLabel("-- SLIDERS --", yPos); yPos = yPos + 28
-createSlider("Walk Speed", yPos, 16, 250, settings.walkSpeed, function(v) settings.walkSpeed = v end); yPos = yPos + 35
-createSlider("Jump Power", yPos, 50, 500, settings.jumpPower, function(v) settings.jumpPower = v end); yPos = yPos + 35
-createSlider("Energy Gain per frame", yPos, 1, 10000, settings.energyGain, function(v) settings.energyGain = v end); yPos = yPos + 35
-createSlider("MONEY GAIN per frame", yPos, 1, 99999999, settings.moneyGain, function(v) settings.moneyGain = v end); yPos = yPos + 35
-createSlider("Farm Range", yPos, 10, 150, settings.farmRange, function(v) settings.farmRange = v end); yPos = yPos + 35
-
--- ========== CORE LOGIC ==========
-local function getTycoon()
-    for _, v in pairs(workspace:GetChildren()) do
-        if v:IsA("Model") and (v.Name:lower():find("tycoon") or v.Name:lower():find("energy")) then
-            return v
-        end
-    end
-    return nil
-end
-
-local function getDrops(tycoon)
-    local drops = {}
-    if not tycoon then return drops end
-    for _, v in pairs(tycoon:GetDescendants()) do
-        if v:IsA("BasePart") and (v.Name:lower():find("drop") or v.Name:lower():find("coin") or v.Name:lower():find("money") or v.Name:lower():find("gem") or v.Name:lower():find("crystal")) then
-            table.insert(drops, v)
-        end
-    end
-    return drops
-end
-
-local function getButtons(tycoon)
-    local buttons = {}
-    if not tycoon then return buttons end
-    for _, v in pairs(tycoon:GetDescendants()) do
-        if v:IsA("ClickDetector") or (v:IsA("BasePart") and v.Name:lower():find("button")) then
-            table.insert(buttons, v)
-        end
-    end
-    return buttons
-end
-
--- AUTO COLLECT
-runService.RenderStepped:Connect(function()
-    if not settings.autoCollect then return end
-    local tycoon = getTycoon()
+-- MENU BILLBOARD TRÊN ĐẦU
+local function createMenu()
     local char = player.Character
-    if not char or not tycoon then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    for _, drop in pairs(getDrops(tycoon)) do
-        if drop and drop:IsA("BasePart") and drop.Parent then
-            firetouchinterest(hrp, drop, 0)
-            firetouchinterest(hrp, drop, 1)
-        end
-    end
-end)
+    if not char then return end
+    local head = char:FindFirstChild("Head")
+    if not head then return end
 
--- AUTO CLICK
-runService.RenderStepped:Connect(function()
-    if not settings.autoClick then return end
-    local tycoon = getTycoon()
-    if not tycoon then return end
-    for _, btn in pairs(getButtons(tycoon)) do
-        if btn:IsA("ClickDetector") then
-            btn:Click()
-        elseif btn:IsA("BasePart") then
-            local detector = btn:FindFirstChild("ClickDetector")
-            if detector then detector:Click() end
-        end
-    end
-end)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "HackMenu"
+    billboard.Size = UDim2.new(0, 380, 0, 420)
+    billboard.Adornee = head
+    billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+    billboard.Parent = head
 
--- SPEED BOOST
-player.CharacterAdded:Connect(function(char)
-    task.wait(0.3)
-    local hum = char:FindFirstChild("Humanoid")
-    if hum and settings.speedBoost then
-        hum.WalkSpeed = settings.walkSpeed
-        hum.JumpPower = settings.jumpPower
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.Parent = billboard
+
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    title.Text = "MEGA HACK - F9 toggle"
+    title.TextColor3 = Color3.fromRGB(255, 200, 0)
+    title.TextScaled = true
+    title.Font = Enum.Font.GothamBold
+    title.Parent = frame
+
+    local settings = {
+        autoCollect = true,
+        autoClick = true,
+        speedBoost = true,
+        godMode = true,
+        infiniteEnergy = true,
+        infiniteMoney = true,
+        autoFarm = true,
+        teleportOnSpawn = false,
+        walkSpeed = 60,
+        jumpPower = 100,
+        energyGain = 1000,
+        moneyGain = 9999999,
+        farmRange = 50
+    }
+
+    local function addToggle(text, yPos, defaultState, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.9, 0, 0, 26)
+        btn.Position = UDim2.new(0.05, 0, 0, yPos)
+        btn.BackgroundColor3 = defaultState and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
+        btn.Text = text .. (defaultState and " [ON]" or " [OFF]")
+        btn.TextColor3 = Color3.fromRGB(255,255,255)
+        btn.TextSize = 12
+        btn.Font = Enum.Font.Gotham
+        btn.Parent = frame
+        local state = defaultState
+        btn.MouseButton1Click:Connect(function()
+            state = not state
+            btn.BackgroundColor3 = state and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
+            btn.Text = text .. (state and " [ON]" or " [OFF]")
+            callback(state)
+        end)
+        return btn
     end
-    if settings.teleportOnSpawn then
-        local tycoon = getTycoon()
-        if tycoon then
-            local spawn = tycoon:FindFirstChild("SpawnLocation")
-            if spawn and spawn:IsA("SpawnLocation") then
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    hrp.CFrame = spawn.CFrame + Vector3.new(0, 2, 0)
+
+    local y = 35
+    addToggle("Auto Collect ALL", y, settings.autoCollect, function(v) settings.autoCollect = v end); y = y + 30
+    addToggle("Auto Click ALL", y, settings.autoClick, function(v) settings.autoClick = v end); y = y + 30
+    addToggle("Speed Boost", y, settings.speedBoost, function(v) settings.speedBoost = v end); y = y + 30
+    addToggle("God Mode", y, settings.godMode, function(v) settings.godMode = v end); y = y + 30
+    addToggle("Infinite Energy", y, settings.infiniteEnergy, function(v) settings.infiniteEnergy = v end); y = y + 30
+    addToggle("Infinite Money", y, settings.infiniteMoney, function(v) settings.infiniteMoney = v end); y = y + 30
+    addToggle("Auto Farm (range)", y, settings.autoFarm, function(v) settings.autoFarm = v end); y = y + 30
+    addToggle("Teleport on Spawn", y, settings.teleportOnSpawn, function(v) settings.teleportOnSpawn = v end); y = y + 30
+
+    local info = Instance.new("TextLabel")
+    info.Size = UDim2.new(0.9, 0, 0, 40)
+    info.Position = UDim2.new(0.05, 0, 0, y)
+    info.BackgroundTransparency = 1
+    info.Text = "Speed:"..settings.walkSpeed.." Jump:"..settings.jumpPower.." | Money +"..settings.moneyGain
+    info.TextColor3 = Color3.fromRGB(180, 200, 255)
+    info.TextSize = 11
+    info.Font = Enum.Font.Gotham
+    info.Parent = frame
+
+    -- ====== LOGIC QUÉT TOÀN CỤC ======
+
+    -- 1. AUTO COLLECT - quét tất cả BasePart trong workspace có tên chứa từ khóa
+    runService.RenderStepped:Connect(function()
+        if not settings.autoCollect then return end
+        local char = player.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Parent and v.Parent ~= char then
+                local name = v.Name:lower()
+                if name:find("drop") or name:find("coin") or name:find("money") or name:find("gem") or name:find("crystal") or name:find("collect") or name:find("reward") or name:find("cash") or name:find("dollar") or name:find("gold") or name:find("ore") or name:find("bar") then
+                    firetouchinterest(hrp, v, 0)
+                    firetouchinterest(hrp, v, 1)
                 end
             end
         end
-    end
-end)
+    end)
 
-runService.RenderStepped:Connect(function()
-    local char = player.Character
-    if not char then return end
-    local hum = char:FindFirstChild("Humanoid")
-    if hum and settings.speedBoost then
-        hum.WalkSpeed = settings.walkSpeed
-        hum.JumpPower = settings.jumpPower
-    end
-end)
-
--- GOD MODE
-runService.RenderStepped:Connect(function()
-    if not settings.godMode then return end
-    local char = player.Character
-    if not char then return end
-    local hum = char:FindFirstChild("Humanoid")
-    if hum then
-        hum.MaxHealth = math.huge
-        hum.Health = math.huge
-    end
-end)
-
--- INFINITE ENERGY
-runService.RenderStepped:Connect(function()
-    if not settings.infiniteEnergy then return end
-    local gui = player.PlayerGui
-    for _, obj in pairs(gui:GetDescendants()) do
-        if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
-            obj.Value = obj.Value + settings.energyGain
+    -- 2. AUTO CLICK - quét tất cả ClickDetector và nút trong workspace
+    runService.RenderStepped:Connect(function()
+        if not settings.autoClick then return end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ClickDetector") then
+                v:Click()
+            elseif v:IsA("BasePart") and v.Name:lower():find("button") then
+                local det = v:FindFirstChild("ClickDetector")
+                if det then det:Click() end
+            end
         end
-    end
-    local tycoon = getTycoon()
-    if tycoon then
-        for _, obj in pairs(tycoon:GetDescendants()) do
+        -- Cũng quét GUI buttons
+        for _, gui in pairs(player.PlayerGui:GetDescendants()) do
+            if gui:IsA("TextButton") or gui:IsA("ImageButton") then
+                gui:Click()
+            end
+        end
+    end)
+
+    -- 3. SPEED BOOST
+    player.CharacterAdded:Connect(function(char)
+        wait(0.3)
+        local hum = char:FindFirstChild("Humanoid")
+        if hum and settings.speedBoost then
+            hum.WalkSpeed = settings.walkSpeed
+            hum.JumpPower = settings.jumpPower
+        end
+        if settings.teleportOnSpawn then
+            local spawn = workspace:FindFirstChild("SpawnLocation")
+            if spawn and spawn:IsA("SpawnLocation") then
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.CFrame = spawn.CFrame + Vector3.new(0,2,0) end
+            end
+        end
+    end)
+
+    runService.RenderStepped:Connect(function()
+        local char = player.Character
+        if not char then return end
+        local hum = char:FindFirstChild("Humanoid")
+        if hum and settings.speedBoost then
+            hum.WalkSpeed = settings.walkSpeed
+            hum.JumpPower = settings.jumpPower
+        end
+    end)
+
+    -- 4. GOD MODE
+    runService.RenderStepped:Connect(function()
+        if not settings.godMode then return end
+        local char = player.Character
+        if not char then return end
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then
+            hum.MaxHealth = math.huge
+            hum.Health = math.huge
+        end
+    end)
+
+    -- 5. INFINITE ENERGY - quét tất cả NumberValue/IntValue có tên chứa "energy"
+    runService.RenderStepped:Connect(function()
+        if not settings.infiniteEnergy then return end
+        for _, obj in pairs(workspace:GetDescendants()) do
             if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
                 obj.Value = obj.Value + settings.energyGain
             end
         end
-    end
-end)
+        for _, obj in pairs(player:GetDescendants()) do
+            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
+                obj.Value = obj.Value + settings.energyGain
+            end
+        end
+        for _, obj in pairs(player.PlayerGui:GetDescendants()) do
+            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
+                obj.Value = obj.Value + settings.energyGain
+            end
+        end
+    end)
 
--- ====== INFINITE MONEY ======
-runService.RenderStepped:Connect(function()
-    if not settings.infiniteMoney then return end
-    local gain = settings.moneyGain
-    
-    -- Scan tycoon
-    local tycoon = getTycoon()
-    if tycoon then
-        for _, obj in pairs(tycoon:GetDescendants()) do
-            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) then
+    -- 6. INFINITE MONEY - quét tất cả NumberValue/IntValue có tên chứa từ khóa tiền
+    runService.RenderStepped:Connect(function()
+        if not settings.infiniteMoney then return end
+        local gain = settings.moneyGain
+        local keywords = {"cash","money","gold","coin","dollar","currency","bank","balance","wallet","point","credit","fund","treasure","gem","diamond"}
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
                 local name = obj.Name:lower()
-                if name:find("cash") or name:find("money") or name:find("gold") or name:find("coin") or name:find("dollar") or name:find("currency") or name:find("bank") or name:find("balance") or name:find("wallet") then
+                for _, kw in pairs(keywords) do
+                    if name:find(kw) then
+                        obj.Value = obj.Value + gain
+                        break
+                    end
+                end
+            end
+        end
+        for _, obj in pairs(player:GetDescendants()) do
+            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
+                local name = obj.Name:lower()
+                for _, kw in pairs(keywords) do
+                    if name:find(kw) then
+                        obj.Value = obj.Value + gain
+                        break
+                    end
+                end
+            end
+        end
+        for _, obj in pairs(player.PlayerGui:GetDescendants()) do
+            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
+                local name = obj.Name:lower()
+                for _, kw in pairs(keywords) do
+                    if name:find(kw) then
+                        obj.Value = obj.Value + gain
+                        break
+                    end
+                end
+            end
+        end
+        local ls = player:FindFirstChild("leaderstats")
+        if ls then
+            for _, obj in pairs(ls:GetChildren()) do
+                if obj:IsA("NumberValue") or obj:IsA("IntValue") then
                     obj.Value = obj.Value + gain
                 end
             end
         end
-    end
-    
-    -- Scan Player
-    for _, obj in pairs(player:GetDescendants()) do
-        if (obj:IsA("NumberValue") or obj:IsA("IntValue")) then
-            local name = obj.Name:lower()
-            if name:find("cash") or name:find("money") or name:find("gold") or name:find("coin") or name:find("dollar") or name:find("currency") or name:find("bank") or name:find("balance") or name:find("wallet") or name:find("stats") then
-                obj.Value = obj.Value + gain
+    end)
+
+    -- 7. AUTO FARM - nhặt mọi thứ trong bán kính
+    runService.RenderStepped:Connect(function()
+        if not settings.autoFarm then return end
+        local char = player.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Parent and v.Parent ~= char then
+                if (v.Position - hrp.Position).Magnitude < settings.farmRange then
+                    firetouchinterest(hrp, v, 0)
+                    firetouchinterest(hrp, v, 1)
+                end
             end
         end
-    end
-    
-    -- Scan Leaderstats
-    local ls = player:FindFirstChild("leaderstats")
-    if ls then
-        for _, obj in pairs(ls:GetChildren()) do
-            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                obj.Value = obj.Value + gain
-            end
+    end)
+
+    -- ANTI KICK
+    game:GetService("Players").LocalPlayer.Kick = function() end
+
+    -- F9 TOGGLE
+    userInput.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if input.KeyCode == Enum.KeyCode.F9 then
+            billboard.Enabled = not billboard.Enabled
         end
-    end
-    
-    -- Scan Workspace for any money values
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("money") then
-            obj.Value = obj.Value + gain
-        end
-    end
-end)
+    end)
 
--- AUTO FARM
-runService.RenderStepped:Connect(function()
-    if not settings.autoFarm then return end
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and (v.Name:lower():find("drop") or v.Name:lower():find("coin") or v.Name:lower():find("money") or v.Name:lower():find("gem") or v.Name:lower():find("collect") or v.Name:lower():find("crystal")) then
-            if (v.Position - hrp.Position).Magnitude < settings.farmRange then
-                firetouchinterest(hrp, v, 0)
-                firetouchinterest(hrp, v, 1)
-            end
-        end
-    end
-end)
+    print("MEGA HACK LOADED - F9 toggles menu")
+end
 
--- ANTI KICK
-game:GetService("Players").LocalPlayer.Kick = function() end
-
--- F9 TOGGLE MENU
-userInput.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.F9 then
-        menuVisible = not menuVisible
-        mainFrame.Visible = menuVisible
-    end
-end)
-
-print("TYCOON MEGA HACK v3.0 LOADED - INFINITE MONEY ENABLED")
-print("Press F9 to toggle menu. All features working.")
+if player.Character then
+    createMenu()
+else
+    player.CharacterAdded:Connect(createMenu)
+end
