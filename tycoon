@@ -1,5 +1,6 @@
--- SCRIPT HACK TỐC ĐỘ (WALKSPEED + JUMPPOWER) CÓ MENU CHỈNH THANH TRƯỢT
--- Dùng cho Roblox, hiển thị BillboardGui trên đầu nhân vật
+LỖI: BillboardGui không tương tác được do click bị chặn bởi game. Dùng ScreenGui (hiển thị trên màn hình) thay thế.
+
+--- BẢN DÙNG SCREENGUI (TƯƠNG TÁC ĐƯỢC) ---
 
 local player = game:GetService("Players").LocalPlayer
 local runService = game:GetService("RunService")
@@ -11,232 +12,228 @@ local settings = {
     jumpPower = 100
 }
 
--- Tạo menu
-local function createMenu()
-    local char = player.Character
-    if not char then return end
-    local head = char:FindFirstChild("Head")
-    if not head then return end
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SpeedHackGUI"
+screenGui.Parent = player.PlayerGui
 
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "SpeedHackMenu"
-    billboard.Size = UDim2.new(0, 280, 0, 200)
-    billboard.Adornee = head
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.Parent = head
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 260, 0, 210)
+frame.Position = UDim2.new(0.5, -130, 0.5, -105)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 25)
+frame.BackgroundTransparency = 0.1
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    frame.BackgroundTransparency = 0.2
-    frame.BorderSizePixel = 0
-    frame.Parent = billboard
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(30, 30, 55)
+title.Text = "SPEED HACK - F9 hide"
+title.TextColor3 = Color3.fromRGB(0, 255, 200)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
 
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 28)
-    title.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-    title.Text = "SPEED HACK - F9 toggle"
-    title.TextColor3 = Color3.fromRGB(0, 255, 200)
-    title.TextScaled = true
-    title.Font = Enum.Font.GothamBold
-    title.Parent = frame
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 28, 0, 28)
+closeBtn.Position = UDim2.new(1, -32, 0, 1)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255,255,255)
+closeBtn.TextScaled = true
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = frame
+closeBtn.MouseButton1Click:Connect(function() screenGui.Enabled = false end)
 
-    -- Nút bật/tắt
-    local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Size = UDim2.new(0.8, 0, 0, 30)
-    toggleBtn.Position = UDim2.new(0.1, 0, 0, 32)
-    toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 50)
-    toggleBtn.Text = "ENABLED [ON]"
-    toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    toggleBtn.TextSize = 14
-    toggleBtn.Font = Enum.Font.GothamBold
-    toggleBtn.Parent = frame
-    toggleBtn.MouseButton1Click:Connect(function()
-        settings.enabled = not settings.enabled
-        toggleBtn.Text = settings.enabled and "ENABLED [ON]" or "DISABLED [OFF]"
-        toggleBtn.BackgroundColor3 = settings.enabled and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
-        if not settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then
-                hum.WalkSpeed = 16
-                hum.JumpPower = 50
-            end
+-- Toggle ON/OFF
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0.8, 0, 0, 30)
+toggleBtn.Position = UDim2.new(0.1, 0, 0, 35)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 50)
+toggleBtn.Text = "ENABLED [ON]"
+toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
+toggleBtn.TextSize = 14
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.Parent = frame
+toggleBtn.MouseButton1Click:Connect(function()
+    settings.enabled = not settings.enabled
+    toggleBtn.Text = settings.enabled and "ENABLED [ON]" or "DISABLED [OFF]"
+    toggleBtn.BackgroundColor3 = settings.enabled and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
+    if not settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
         end
-    end)
+    end
+end)
 
-    -- Thanh trượt WalkSpeed (dùng TextButton + value)
-    local wsLabel = Instance.new("TextLabel")
-    wsLabel.Size = UDim2.new(0.4, 0, 0, 25)
-    wsLabel.Position = UDim2.new(0.05, 0, 0, 68)
-    wsLabel.BackgroundTransparency = 1
+-- WalkSpeed
+local wsLabel = Instance.new("TextLabel")
+wsLabel.Size = UDim2.new(0.4, 0, 0, 25)
+wsLabel.Position = UDim2.new(0.05, 0, 0, 70)
+wsLabel.BackgroundTransparency = 1
+wsLabel.Text = "Walk: " .. settings.walkSpeed
+wsLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+wsLabel.TextSize = 13
+wsLabel.TextXAlignment = Enum.TextXAlignment.Left
+wsLabel.Font = Enum.Font.Gotham
+wsLabel.Parent = frame
+
+local wsDown = Instance.new("TextButton")
+wsDown.Size = UDim2.new(0.1, 0, 0, 25)
+wsDown.Position = UDim2.new(0.55, 0, 0, 70)
+wsDown.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+wsDown.Text = "-"
+wsDown.TextColor3 = Color3.fromRGB(255,255,255)
+wsDown.TextSize = 18
+wsDown.Font = Enum.Font.GothamBold
+wsDown.Parent = frame
+wsDown.MouseButton1Click:Connect(function()
+    settings.walkSpeed = math.max(16, settings.walkSpeed - 5)
     wsLabel.Text = "Walk: " .. settings.walkSpeed
-    wsLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
-    wsLabel.TextSize = 13
-    wsLabel.TextXAlignment = Enum.TextXAlignment.Left
-    wsLabel.Font = Enum.Font.Gotham
-    wsLabel.Parent = frame
+    if settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then hum.WalkSpeed = settings.walkSpeed end
+    end
+end)
 
-    local wsDown = Instance.new("TextButton")
-    wsDown.Size = UDim2.new(0.08, 0, 0, 25)
-    wsDown.Position = UDim2.new(0.55, 0, 0, 68)
-    wsDown.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    wsDown.Text = "-"
-    wsDown.TextColor3 = Color3.fromRGB(255,255,255)
-    wsDown.TextSize = 18
-    wsDown.Font = Enum.Font.GothamBold
-    wsDown.Parent = frame
-    wsDown.MouseButton1Click:Connect(function()
-        settings.walkSpeed = math.max(16, settings.walkSpeed - 5)
-        wsLabel.Text = "Walk: " .. settings.walkSpeed
-        if settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then hum.WalkSpeed = settings.walkSpeed end
-        end
-    end)
+local wsUp = Instance.new("TextButton")
+wsUp.Size = UDim2.new(0.1, 0, 0, 25)
+wsUp.Position = UDim2.new(0.68, 0, 0, 70)
+wsUp.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+wsUp.Text = "+"
+wsUp.TextColor3 = Color3.fromRGB(255,255,255)
+wsUp.TextSize = 18
+wsUp.Font = Enum.Font.GothamBold
+wsUp.Parent = frame
+wsUp.MouseButton1Click:Connect(function()
+    settings.walkSpeed = math.min(300, settings.walkSpeed + 5)
+    wsLabel.Text = "Walk: " .. settings.walkSpeed
+    if settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then hum.WalkSpeed = settings.walkSpeed end
+    end
+end)
 
-    local wsUp = Instance.new("TextButton")
-    wsUp.Size = UDim2.new(0.08, 0, 0, 25)
-    wsUp.Position = UDim2.new(0.68, 0, 0, 68)
-    wsUp.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    wsUp.Text = "+"
-    wsUp.TextColor3 = Color3.fromRGB(255,255,255)
-    wsUp.TextSize = 18
-    wsUp.Font = Enum.Font.GothamBold
-    wsUp.Parent = frame
-    wsUp.MouseButton1Click:Connect(function()
-        settings.walkSpeed = math.min(300, settings.walkSpeed + 5)
-        wsLabel.Text = "Walk: " .. settings.walkSpeed
-        if settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then hum.WalkSpeed = settings.walkSpeed end
-        end
-    end)
+-- JumpPower
+local jpLabel = Instance.new("TextLabel")
+jpLabel.Size = UDim2.new(0.4, 0, 0, 25)
+jpLabel.Position = UDim2.new(0.05, 0, 0, 100)
+jpLabel.BackgroundTransparency = 1
+jpLabel.Text = "Jump: " .. settings.jumpPower
+jpLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+jpLabel.TextSize = 13
+jpLabel.TextXAlignment = Enum.TextXAlignment.Left
+jpLabel.Font = Enum.Font.Gotham
+jpLabel.Parent = frame
 
-    -- Thanh trượt JumpPower
-    local jpLabel = Instance.new("TextLabel")
-    jpLabel.Size = UDim2.new(0.4, 0, 0, 25)
-    jpLabel.Position = UDim2.new(0.05, 0, 0, 98)
-    jpLabel.BackgroundTransparency = 1
+local jpDown = Instance.new("TextButton")
+jpDown.Size = UDim2.new(0.1, 0, 0, 25)
+jpDown.Position = UDim2.new(0.55, 0, 0, 100)
+jpDown.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+jpDown.Text = "-"
+jpDown.TextColor3 = Color3.fromRGB(255,255,255)
+jpDown.TextSize = 18
+jpDown.Font = Enum.Font.GothamBold
+jpDown.Parent = frame
+jpDown.MouseButton1Click:Connect(function()
+    settings.jumpPower = math.max(30, settings.jumpPower - 5)
     jpLabel.Text = "Jump: " .. settings.jumpPower
-    jpLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
-    jpLabel.TextSize = 13
-    jpLabel.TextXAlignment = Enum.TextXAlignment.Left
-    jpLabel.Font = Enum.Font.Gotham
-    jpLabel.Parent = frame
+    if settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then hum.JumpPower = settings.jumpPower end
+    end
+end)
 
-    local jpDown = Instance.new("TextButton")
-    jpDown.Size = UDim2.new(0.08, 0, 0, 25)
-    jpDown.Position = UDim2.new(0.55, 0, 0, 98)
-    jpDown.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    jpDown.Text = "-"
-    jpDown.TextColor3 = Color3.fromRGB(255,255,255)
-    jpDown.TextSize = 18
-    jpDown.Font = Enum.Font.GothamBold
-    jpDown.Parent = frame
-    jpDown.MouseButton1Click:Connect(function()
-        settings.jumpPower = math.max(30, settings.jumpPower - 5)
-        jpLabel.Text = "Jump: " .. settings.jumpPower
-        if settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then hum.JumpPower = settings.jumpPower end
+local jpUp = Instance.new("TextButton")
+jpUp.Size = UDim2.new(0.1, 0, 0, 25)
+jpUp.Position = UDim2.new(0.68, 0, 0, 100)
+jpUp.BackgroundColor3 = Color3.fromRGB(60, 60, 90)
+jpUp.Text = "+"
+jpUp.TextColor3 = Color3.fromRGB(255,255,255)
+jpUp.TextSize = 18
+jpUp.Font = Enum.Font.GothamBold
+jpUp.Parent = frame
+jpUp.MouseButton1Click:Connect(function()
+    settings.jumpPower = math.min(500, settings.jumpPower + 5)
+    jpLabel.Text = "Jump: " .. settings.jumpPower
+    if settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then hum.JumpPower = settings.jumpPower end
+    end
+end)
+
+-- Reset
+local resetBtn = Instance.new("TextButton")
+resetBtn.Size = UDim2.new(0.8, 0, 0, 28)
+resetBtn.Position = UDim2.new(0.1, 0, 0, 132)
+resetBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
+resetBtn.Text = "RESET (16 / 50)"
+resetBtn.TextColor3 = Color3.fromRGB(255,255,255)
+resetBtn.TextSize = 13
+resetBtn.Font = Enum.Font.GothamBold
+resetBtn.Parent = frame
+resetBtn.MouseButton1Click:Connect(function()
+    settings.walkSpeed = 16
+    settings.jumpPower = 50
+    wsLabel.Text = "Walk: 16"
+    jpLabel.Text = "Jump: 50"
+    if settings.enabled then
+        local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+        if hum then
+            hum.WalkSpeed = 16
+            hum.JumpPower = 50
         end
-    end)
+    end
+end)
 
-    local jpUp = Instance.new("TextButton")
-    jpUp.Size = UDim2.new(0.08, 0, 0, 25)
-    jpUp.Position = UDim2.new(0.68, 0, 0, 98)
-    jpUp.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-    jpUp.Text = "+"
-    jpUp.TextColor3 = Color3.fromRGB(255,255,255)
-    jpUp.TextSize = 18
-    jpUp.Font = Enum.Font.GothamBold
-    jpUp.Parent = frame
-    jpUp.MouseButton1Click:Connect(function()
-        settings.jumpPower = math.min(500, settings.jumpPower + 5)
-        jpLabel.Text = "Jump: " .. settings.jumpPower
-        if settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then hum.JumpPower = settings.jumpPower end
-        end
-    end)
+local info = Instance.new("TextLabel")
+info.Size = UDim2.new(0.9, 0, 0, 18)
+info.Position = UDim2.new(0.05, 0, 0, 164)
+info.BackgroundTransparency = 1
+info.Text = "F9 toggles visibility"
+info.TextColor3 = Color3.fromRGB(150, 180, 200)
+info.TextSize = 10
+info.Font = Enum.Font.Gotham
+info.Parent = frame
 
-    -- Nút reset về mặc định
-    local resetBtn = Instance.new("TextButton")
-    resetBtn.Size = UDim2.new(0.8, 0, 0, 28)
-    resetBtn.Position = UDim2.new(0.1, 0, 0, 130)
-    resetBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
-    resetBtn.Text = "RESET (16 / 50)"
-    resetBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    resetBtn.TextSize = 13
-    resetBtn.Font = Enum.Font.GothamBold
-    resetBtn.Parent = frame
-    resetBtn.MouseButton1Click:Connect(function()
-        settings.walkSpeed = 16
-        settings.jumpPower = 50
-        wsLabel.Text = "Walk: 16"
-        jpLabel.Text = "Jump: 50"
-        if settings.enabled then
-            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-            if hum then
-                hum.WalkSpeed = 16
-                hum.JumpPower = 50
-            end
-        end
-    end)
+-- ====== LOGIC ======
 
-    local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(0.9, 0, 0, 20)
-    info.Position = UDim2.new(0.05, 0, 0, 162)
-    info.BackgroundTransparency = 1
-    info.Text = "F9 toggle | +/- adjust"
-    info.TextColor3 = Color3.fromRGB(150, 180, 200)
-    info.TextSize = 10
-    info.Font = Enum.Font.Gotham
-    info.Parent = frame
-
-    -- ====== LOGIC TỐC ĐỘ ======
-
-    -- Áp dụng khi nhân vật mới sinh
-    player.CharacterAdded:Connect(function(char)
-        wait(0.3)
-        if settings.enabled then
-            local hum = char:FindFirstChild("Humanoid")
-            if hum then
-                hum.WalkSpeed = settings.walkSpeed
-                hum.JumpPower = settings.jumpPower
-            end
-        end
-    end)
-
-    -- Duy trì tốc độ mỗi frame
-    runService.RenderStepped:Connect(function()
-        if not settings.enabled then return end
-        local char = player.Character
-        if not char then return end
+player.CharacterAdded:Connect(function(char)
+    wait(0.3)
+    if settings.enabled then
         local hum = char:FindFirstChild("Humanoid")
         if hum then
-            if hum.WalkSpeed ~= settings.walkSpeed then
-                hum.WalkSpeed = settings.walkSpeed
-            end
-            if hum.JumpPower ~= settings.jumpPower then
-                hum.JumpPower = settings.jumpPower
-            end
+            hum.WalkSpeed = settings.walkSpeed
+            hum.JumpPower = settings.jumpPower
         end
-    end)
+    end
+end)
 
-    -- F9 toggle menu
-    userInput.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        if input.KeyCode == Enum.KeyCode.F9 then
-            billboard.Enabled = not billboard.Enabled
+runService.RenderStepped:Connect(function()
+    if not settings.enabled then return end
+    local char = player.Character
+    if not char then return end
+    local hum = char:FindFirstChild("Humanoid")
+    if hum then
+        if hum.WalkSpeed ~= settings.walkSpeed then
+            hum.WalkSpeed = settings.walkSpeed
         end
-    end)
+        if hum.JumpPower ~= settings.jumpPower then
+            hum.JumpPower = settings.jumpPower
+        end
+    end
+end)
 
-    print("SPEED HACK LOADED - F9 toggles menu | +/- adjust speed")
-end
+-- F9 hide/show
+userInput.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.F9 then
+        frame.Visible = not frame.Visible
+    end
+end)
 
-if player.Character then
-    createMenu()
-else
-    player.CharacterAdded:Connect(createMenu)
-end
+print("SPEED HACK LOADED - F9 hide/show | +/- adjust")
