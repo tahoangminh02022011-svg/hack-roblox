@@ -1,8 +1,17 @@
+-- SCRIPT HACK TỐC ĐỘ (WALKSPEED + JUMPPOWER) CÓ MENU CHỈNH THANH TRƯỢT
+-- Dùng cho Roblox, hiển thị BillboardGui trên đầu nhân vật
+
 local player = game:GetService("Players").LocalPlayer
 local runService = game:GetService("RunService")
 local userInput = game:GetService("UserInputService")
 
--- MENU BILLBOARD TRÊN ĐẦU
+local settings = {
+    enabled = true,
+    walkSpeed = 60,
+    jumpPower = 100
+}
+
+-- Tạo menu
 local function createMenu()
     local char = player.Character
     if not char then return end
@@ -10,10 +19,10 @@ local function createMenu()
     if not head then return end
 
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "HackMenu"
-    billboard.Size = UDim2.new(0, 380, 0, 420)
+    billboard.Name = "SpeedHackMenu"
+    billboard.Size = UDim2.new(0, 280, 0, 200)
     billboard.Adornee = head
-    billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.Parent = head
 
     local frame = Instance.new("Frame")
@@ -24,237 +33,198 @@ local function createMenu()
     frame.Parent = billboard
 
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Size = UDim2.new(1, 0, 0, 28)
     title.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
-    title.Text = "MEGA HACK - F9 toggle"
-    title.TextColor3 = Color3.fromRGB(255, 200, 0)
+    title.Text = "SPEED HACK - F9 toggle"
+    title.TextColor3 = Color3.fromRGB(0, 255, 200)
     title.TextScaled = true
     title.Font = Enum.Font.GothamBold
     title.Parent = frame
 
-    local settings = {
-        autoCollect = true,
-        autoClick = true,
-        speedBoost = true,
-        godMode = true,
-        infiniteEnergy = true,
-        infiniteMoney = true,
-        autoFarm = true,
-        teleportOnSpawn = false,
-        walkSpeed = 60,
-        jumpPower = 100,
-        energyGain = 1000,
-        moneyGain = 9999999,
-        farmRange = 50
-    }
+    -- Nút bật/tắt
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0.8, 0, 0, 30)
+    toggleBtn.Position = UDim2.new(0.1, 0, 0, 32)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 50)
+    toggleBtn.Text = "ENABLED [ON]"
+    toggleBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    toggleBtn.TextSize = 14
+    toggleBtn.Font = Enum.Font.GothamBold
+    toggleBtn.Parent = frame
+    toggleBtn.MouseButton1Click:Connect(function()
+        settings.enabled = not settings.enabled
+        toggleBtn.Text = settings.enabled and "ENABLED [ON]" or "DISABLED [OFF]"
+        toggleBtn.BackgroundColor3 = settings.enabled and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
+        if not settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then
+                hum.WalkSpeed = 16
+                hum.JumpPower = 50
+            end
+        end
+    end)
 
-    local function addToggle(text, yPos, defaultState, callback)
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0.9, 0, 0, 26)
-        btn.Position = UDim2.new(0.05, 0, 0, yPos)
-        btn.BackgroundColor3 = defaultState and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
-        btn.Text = text .. (defaultState and " [ON]" or " [OFF]")
-        btn.TextColor3 = Color3.fromRGB(255,255,255)
-        btn.TextSize = 12
-        btn.Font = Enum.Font.Gotham
-        btn.Parent = frame
-        local state = defaultState
-        btn.MouseButton1Click:Connect(function()
-            state = not state
-            btn.BackgroundColor3 = state and Color3.fromRGB(0, 150, 50) or Color3.fromRGB(150, 20, 20)
-            btn.Text = text .. (state and " [ON]" or " [OFF]")
-            callback(state)
-        end)
-        return btn
-    end
+    -- Thanh trượt WalkSpeed (dùng TextButton + value)
+    local wsLabel = Instance.new("TextLabel")
+    wsLabel.Size = UDim2.new(0.4, 0, 0, 25)
+    wsLabel.Position = UDim2.new(0.05, 0, 0, 68)
+    wsLabel.BackgroundTransparency = 1
+    wsLabel.Text = "Walk: " .. settings.walkSpeed
+    wsLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+    wsLabel.TextSize = 13
+    wsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    wsLabel.Font = Enum.Font.Gotham
+    wsLabel.Parent = frame
 
-    local y = 35
-    addToggle("Auto Collect ALL", y, settings.autoCollect, function(v) settings.autoCollect = v end); y = y + 30
-    addToggle("Auto Click ALL", y, settings.autoClick, function(v) settings.autoClick = v end); y = y + 30
-    addToggle("Speed Boost", y, settings.speedBoost, function(v) settings.speedBoost = v end); y = y + 30
-    addToggle("God Mode", y, settings.godMode, function(v) settings.godMode = v end); y = y + 30
-    addToggle("Infinite Energy", y, settings.infiniteEnergy, function(v) settings.infiniteEnergy = v end); y = y + 30
-    addToggle("Infinite Money", y, settings.infiniteMoney, function(v) settings.infiniteMoney = v end); y = y + 30
-    addToggle("Auto Farm (range)", y, settings.autoFarm, function(v) settings.autoFarm = v end); y = y + 30
-    addToggle("Teleport on Spawn", y, settings.teleportOnSpawn, function(v) settings.teleportOnSpawn = v end); y = y + 30
+    local wsDown = Instance.new("TextButton")
+    wsDown.Size = UDim2.new(0.08, 0, 0, 25)
+    wsDown.Position = UDim2.new(0.55, 0, 0, 68)
+    wsDown.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    wsDown.Text = "-"
+    wsDown.TextColor3 = Color3.fromRGB(255,255,255)
+    wsDown.TextSize = 18
+    wsDown.Font = Enum.Font.GothamBold
+    wsDown.Parent = frame
+    wsDown.MouseButton1Click:Connect(function()
+        settings.walkSpeed = math.max(16, settings.walkSpeed - 5)
+        wsLabel.Text = "Walk: " .. settings.walkSpeed
+        if settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then hum.WalkSpeed = settings.walkSpeed end
+        end
+    end)
+
+    local wsUp = Instance.new("TextButton")
+    wsUp.Size = UDim2.new(0.08, 0, 0, 25)
+    wsUp.Position = UDim2.new(0.68, 0, 0, 68)
+    wsUp.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    wsUp.Text = "+"
+    wsUp.TextColor3 = Color3.fromRGB(255,255,255)
+    wsUp.TextSize = 18
+    wsUp.Font = Enum.Font.GothamBold
+    wsUp.Parent = frame
+    wsUp.MouseButton1Click:Connect(function()
+        settings.walkSpeed = math.min(300, settings.walkSpeed + 5)
+        wsLabel.Text = "Walk: " .. settings.walkSpeed
+        if settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then hum.WalkSpeed = settings.walkSpeed end
+        end
+    end)
+
+    -- Thanh trượt JumpPower
+    local jpLabel = Instance.new("TextLabel")
+    jpLabel.Size = UDim2.new(0.4, 0, 0, 25)
+    jpLabel.Position = UDim2.new(0.05, 0, 0, 98)
+    jpLabel.BackgroundTransparency = 1
+    jpLabel.Text = "Jump: " .. settings.jumpPower
+    jpLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
+    jpLabel.TextSize = 13
+    jpLabel.TextXAlignment = Enum.TextXAlignment.Left
+    jpLabel.Font = Enum.Font.Gotham
+    jpLabel.Parent = frame
+
+    local jpDown = Instance.new("TextButton")
+    jpDown.Size = UDim2.new(0.08, 0, 0, 25)
+    jpDown.Position = UDim2.new(0.55, 0, 0, 98)
+    jpDown.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    jpDown.Text = "-"
+    jpDown.TextColor3 = Color3.fromRGB(255,255,255)
+    jpDown.TextSize = 18
+    jpDown.Font = Enum.Font.GothamBold
+    jpDown.Parent = frame
+    jpDown.MouseButton1Click:Connect(function()
+        settings.jumpPower = math.max(30, settings.jumpPower - 5)
+        jpLabel.Text = "Jump: " .. settings.jumpPower
+        if settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then hum.JumpPower = settings.jumpPower end
+        end
+    end)
+
+    local jpUp = Instance.new("TextButton")
+    jpUp.Size = UDim2.new(0.08, 0, 0, 25)
+    jpUp.Position = UDim2.new(0.68, 0, 0, 98)
+    jpUp.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    jpUp.Text = "+"
+    jpUp.TextColor3 = Color3.fromRGB(255,255,255)
+    jpUp.TextSize = 18
+    jpUp.Font = Enum.Font.GothamBold
+    jpUp.Parent = frame
+    jpUp.MouseButton1Click:Connect(function()
+        settings.jumpPower = math.min(500, settings.jumpPower + 5)
+        jpLabel.Text = "Jump: " .. settings.jumpPower
+        if settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then hum.JumpPower = settings.jumpPower end
+        end
+    end)
+
+    -- Nút reset về mặc định
+    local resetBtn = Instance.new("TextButton")
+    resetBtn.Size = UDim2.new(0.8, 0, 0, 28)
+    resetBtn.Position = UDim2.new(0.1, 0, 0, 130)
+    resetBtn.BackgroundColor3 = Color3.fromRGB(100, 50, 150)
+    resetBtn.Text = "RESET (16 / 50)"
+    resetBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    resetBtn.TextSize = 13
+    resetBtn.Font = Enum.Font.GothamBold
+    resetBtn.Parent = frame
+    resetBtn.MouseButton1Click:Connect(function()
+        settings.walkSpeed = 16
+        settings.jumpPower = 50
+        wsLabel.Text = "Walk: 16"
+        jpLabel.Text = "Jump: 50"
+        if settings.enabled then
+            local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+            if hum then
+                hum.WalkSpeed = 16
+                hum.JumpPower = 50
+            end
+        end
+    end)
 
     local info = Instance.new("TextLabel")
-    info.Size = UDim2.new(0.9, 0, 0, 40)
-    info.Position = UDim2.new(0.05, 0, 0, y)
+    info.Size = UDim2.new(0.9, 0, 0, 20)
+    info.Position = UDim2.new(0.05, 0, 0, 162)
     info.BackgroundTransparency = 1
-    info.Text = "Speed:"..settings.walkSpeed.." Jump:"..settings.jumpPower.." | Money +"..settings.moneyGain
-    info.TextColor3 = Color3.fromRGB(180, 200, 255)
-    info.TextSize = 11
+    info.Text = "F9 toggle | +/- adjust"
+    info.TextColor3 = Color3.fromRGB(150, 180, 200)
+    info.TextSize = 10
     info.Font = Enum.Font.Gotham
     info.Parent = frame
 
-    -- ====== LOGIC QUÉT TOÀN CỤC ======
+    -- ====== LOGIC TỐC ĐỘ ======
 
-    -- 1. AUTO COLLECT - quét tất cả BasePart trong workspace có tên chứa từ khóa
-    runService.RenderStepped:Connect(function()
-        if not settings.autoCollect then return end
-        local char = player.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Parent and v.Parent ~= char then
-                local name = v.Name:lower()
-                if name:find("drop") or name:find("coin") or name:find("money") or name:find("gem") or name:find("crystal") or name:find("collect") or name:find("reward") or name:find("cash") or name:find("dollar") or name:find("gold") or name:find("ore") or name:find("bar") then
-                    firetouchinterest(hrp, v, 0)
-                    firetouchinterest(hrp, v, 1)
-                end
-            end
-        end
-    end)
-
-    -- 2. AUTO CLICK - quét tất cả ClickDetector và nút trong workspace
-    runService.RenderStepped:Connect(function()
-        if not settings.autoClick then return end
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("ClickDetector") then
-                v:Click()
-            elseif v:IsA("BasePart") and v.Name:lower():find("button") then
-                local det = v:FindFirstChild("ClickDetector")
-                if det then det:Click() end
-            end
-        end
-        -- Cũng quét GUI buttons
-        for _, gui in pairs(player.PlayerGui:GetDescendants()) do
-            if gui:IsA("TextButton") or gui:IsA("ImageButton") then
-                gui:Click()
-            end
-        end
-    end)
-
-    -- 3. SPEED BOOST
+    -- Áp dụng khi nhân vật mới sinh
     player.CharacterAdded:Connect(function(char)
         wait(0.3)
-        local hum = char:FindFirstChild("Humanoid")
-        if hum and settings.speedBoost then
-            hum.WalkSpeed = settings.walkSpeed
-            hum.JumpPower = settings.jumpPower
-        end
-        if settings.teleportOnSpawn then
-            local spawn = workspace:FindFirstChild("SpawnLocation")
-            if spawn and spawn:IsA("SpawnLocation") then
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                if hrp then hrp.CFrame = spawn.CFrame + Vector3.new(0,2,0) end
+        if settings.enabled then
+            local hum = char:FindFirstChild("Humanoid")
+            if hum then
+                hum.WalkSpeed = settings.walkSpeed
+                hum.JumpPower = settings.jumpPower
             end
         end
     end)
 
+    -- Duy trì tốc độ mỗi frame
     runService.RenderStepped:Connect(function()
-        local char = player.Character
-        if not char then return end
-        local hum = char:FindFirstChild("Humanoid")
-        if hum and settings.speedBoost then
-            hum.WalkSpeed = settings.walkSpeed
-            hum.JumpPower = settings.jumpPower
-        end
-    end)
-
-    -- 4. GOD MODE
-    runService.RenderStepped:Connect(function()
-        if not settings.godMode then return end
+        if not settings.enabled then return end
         local char = player.Character
         if not char then return end
         local hum = char:FindFirstChild("Humanoid")
         if hum then
-            hum.MaxHealth = math.huge
-            hum.Health = math.huge
-        end
-    end)
-
-    -- 5. INFINITE ENERGY - quét tất cả NumberValue/IntValue có tên chứa "energy"
-    runService.RenderStepped:Connect(function()
-        if not settings.infiniteEnergy then return end
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
-                obj.Value = obj.Value + settings.energyGain
+            if hum.WalkSpeed ~= settings.walkSpeed then
+                hum.WalkSpeed = settings.walkSpeed
             end
-        end
-        for _, obj in pairs(player:GetDescendants()) do
-            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
-                obj.Value = obj.Value + settings.energyGain
-            end
-        end
-        for _, obj in pairs(player.PlayerGui:GetDescendants()) do
-            if (obj:IsA("NumberValue") or obj:IsA("IntValue")) and obj.Name:lower():find("energy") then
-                obj.Value = obj.Value + settings.energyGain
+            if hum.JumpPower ~= settings.jumpPower then
+                hum.JumpPower = settings.jumpPower
             end
         end
     end)
 
-    -- 6. INFINITE MONEY - quét tất cả NumberValue/IntValue có tên chứa từ khóa tiền
-    runService.RenderStepped:Connect(function()
-        if not settings.infiniteMoney then return end
-        local gain = settings.moneyGain
-        local keywords = {"cash","money","gold","coin","dollar","currency","bank","balance","wallet","point","credit","fund","treasure","gem","diamond"}
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                local name = obj.Name:lower()
-                for _, kw in pairs(keywords) do
-                    if name:find(kw) then
-                        obj.Value = obj.Value + gain
-                        break
-                    end
-                end
-            end
-        end
-        for _, obj in pairs(player:GetDescendants()) do
-            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                local name = obj.Name:lower()
-                for _, kw in pairs(keywords) do
-                    if name:find(kw) then
-                        obj.Value = obj.Value + gain
-                        break
-                    end
-                end
-            end
-        end
-        for _, obj in pairs(player.PlayerGui:GetDescendants()) do
-            if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                local name = obj.Name:lower()
-                for _, kw in pairs(keywords) do
-                    if name:find(kw) then
-                        obj.Value = obj.Value + gain
-                        break
-                    end
-                end
-            end
-        end
-        local ls = player:FindFirstChild("leaderstats")
-        if ls then
-            for _, obj in pairs(ls:GetChildren()) do
-                if obj:IsA("NumberValue") or obj:IsA("IntValue") then
-                    obj.Value = obj.Value + gain
-                end
-            end
-        end
-    end)
-
-    -- 7. AUTO FARM - nhặt mọi thứ trong bán kính
-    runService.RenderStepped:Connect(function()
-        if not settings.autoFarm then return end
-        local char = player.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Parent and v.Parent ~= char then
-                if (v.Position - hrp.Position).Magnitude < settings.farmRange then
-                    firetouchinterest(hrp, v, 0)
-                    firetouchinterest(hrp, v, 1)
-                end
-            end
-        end
-    end)
-
-    -- ANTI KICK
-    game:GetService("Players").LocalPlayer.Kick = function() end
-
-    -- F9 TOGGLE
+    -- F9 toggle menu
     userInput.InputBegan:Connect(function(input, gameProcessed)
         if gameProcessed then return end
         if input.KeyCode == Enum.KeyCode.F9 then
@@ -262,7 +232,7 @@ local function createMenu()
         end
     end)
 
-    print("MEGA HACK LOADED - F9 toggles menu")
+    print("SPEED HACK LOADED - F9 toggles menu | +/- adjust speed")
 end
 
 if player.Character then
